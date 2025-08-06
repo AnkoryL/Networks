@@ -12,7 +12,7 @@ load_and_validate_config <- function(config_path) {
   config <- read_config_txt(config_path)
 
   required_keys <- c(
-    "special_prefix", "genes_list_path", "go_file_path", "config_evidence_path",
+    "genes_list_path", "species_prefix",  "go_type", "go_file_path", "config_evidence_path",
     "output_folder_path", "connection_type", "level_from", "level_to",
     "label_type", "threshold", "layout"
   )

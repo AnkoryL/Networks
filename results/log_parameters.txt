@@ -1,0 +1,10 @@
+   Species: human
+   GO file path: C:/Users/Ankory/YandexDisk/is_not_a_wolf/Networks/inst/extdata/annotations/HomoSapiens_GO_BiologicalProcess-EBI-UniProt-GOA-ACAP-ARAP_04.04.2025_00h00.txt.gz
+   Genes list path: C:/Users/Ankory/YandexDisk/is_not_a_wolf/test/human_symbol.txt
+   Config evidence path: C:/Users/Ankory/YandexDisk/is_not_a_wolf/Networks/inst/extdata/templates/config_evidence.txt
+   Output folder path: C:/Users/Ankory/YandexDisk/is_not_a_wolf/Networks/results
+   Connection type: common_go_term
+   GO level range: 5 to 20
+   Label type: SYMBOL
+   Threshold weight: 5
+   Layout option: layout_nicely

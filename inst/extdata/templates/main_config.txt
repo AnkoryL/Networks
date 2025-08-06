@@ -1,0 +1,12 @@
+parameter	value
+species_prefix human
+go_file_path ""
+go_type BP
+genes_list_path ./my_genes.csv
+output_folder_path ./results
+config_evidence_path ./config_evidence.txt
+level_from 5
+level_to 20
+label_type SYMBOL
+connection_type common_go_term
+layout_name layout_nicely
