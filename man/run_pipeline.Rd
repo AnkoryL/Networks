@@ -4,10 +4,45 @@
 \alias{run_pipeline}
 \title{Run the full GO-based gene interaction pipeline}
 \usage{
-run_pipeline(config_path)
+run_pipeline(
+  genes_list_path,
+  species_prefix,
+  go_type,
+  output_folder_path = "./results",
+  config_path = NULL,
+  config_evidence_path = default_evidence_experimental_only(),
+  connection_type = "common_go_term",
+  level_from = 5,
+  level_to = 20,
+  label_type = "SYMBOL",
+  layout_name = "layout_nicely",
+  threshold = 5
+)
 }
 \arguments{
-\item{config_path}{Path to the main_config.txt}
+\item{genes_list_path}{Path to gene list (CSV or TXT).}
+
+\item{species_prefix}{Short prefix (e.g., "human", "mouse").}
+
+\item{go_type}{GO category: BP, CC, MF, IP.}
+
+\item{output_folder_path}{Output directory (default: "./results").}
+
+\item{config_path}{Optional path to main_config.txt for loading defaults.}
+
+\item{config_evidence_path}{Optional path to config_evidence.txt. If missing, uses internal.}
+
+\item{connection_type}{Type of connection (default: "common_go_term").}
+
+\item{level_from}{GO tree level (default: 5).}
+
+\item{level_to}{GO tree level (default: 20).}
+
+\item{label_type}{Gene label type (default: "SYMBOL").}
+
+\item{layout_name}{Graph layout (default: "layout_nicely").}
+
+\item{threshold}{Threshold for edge filtering (default: 5).}
 }
 \description{
 Run the full GO-based gene interaction pipeline

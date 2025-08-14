@@ -12,18 +12,18 @@ load_and_validate_config <- function(config_path) {
   config <- read_config_txt(config_path)
 
   required_keys <- c(
-    "special_prefix", "genes_list_path", "go_file_path", "config_evidence_path",
+    "genes_list_path", "species_prefix",  "go_type", "go_file_path", "config_evidence_path",
     "output_folder_path", "connection_type", "level_from", "level_to",
     "label_type", "threshold", "layout"
   )
 
   missing <- setdiff(required_keys, names(config))
   if (length(missing) > 0) {
-    stop("Missing required config parameters: ", paste(missing, collapse = ", "))
+    stop(error_messages$missing_config_parameters, paste(missing, collapse = ", "))
   }
 
   if (!(config$label_type %in% c("SYMBOL", "ENSEMBL", "both"))) {
-    stop("Invalid label_type. Must be one of: SYMBOL, ENSEMBL, both")
+    stop(error_messages$invalid_label_type)
   }
 
   message("      √ Config loaded successfully.")

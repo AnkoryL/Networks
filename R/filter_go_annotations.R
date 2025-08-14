@@ -1,17 +1,28 @@
-#' Filter GO annotations by level and evidence
-#' @export
+#' Filter GO annotations by level and evidence, returning a cleaned table for network building
 #'
+#' @param annotated_genes Data.frame with columns: GO_ID, ENSEMBL, EVIDENCE, SYMBOL, Level (comma-separated string)
+#' @param config_evidence_path Path to evidence configuration file
+#' @param level_from Minimum GO level to include
+#' @param level_to Maximum GO level to include
+#'
+#' @return Data.frame with columns GO_ID, ENSEMBL, EVIDENCE, SYMBOL filtered by level and evidence
 filter_go_annotations <- function(annotated_genes, config_evidence_path, level_from, level_to) {
-  evidence_conf <- read.delim(config_evidence_path, sep = "\t", header = TRUE, stringsAsFactors = FALSE)
-  valid_evidence <- evidence_conf$Evidence[evidence_conf$Boolean == "TRUE"]
+  config_evidence <- read.delim(config_evidence_path, sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+  valid_evidence <- config_evidence$Evidence[config_evidence$Boolean == "TRUE"]
 
-  df <- annotated_genes %>%
-    dplyr::mutate(Level = strsplit(as.character(Level), ",")) %>%
-    dplyr::mutate(Level = lapply(Level, as.numeric)) %>%
-    dplyr::filter(sapply(Level, function(x) any(x >= level_from & x <= level_to))) %>%
-    dplyr::mutate(Level = sapply(Level, function(x) paste(x, collapse = ","))) %>%
-    dplyr::filter(EVIDENCE %in% valid_evidence) %>%
-    dplyr::select(GO_ID, ENSEMBL, EVIDENCE, SYMBOL)
+  data <- na.omit(annotated_genes)
 
-  df
+  data$Level <- strsplit(as.character(data$Level), ",")
+  data$Level <- lapply(data$Level, function(x) as.numeric(trimws(x)))
+
+  valid_level <- function(x) any(x >= level_from & x <= level_to)
+  data <- data[sapply(data$Level, valid_level), ]
+
+  data$Level <- sapply(data$Level, function(x) paste(x, collapse = ","))
+
+  data <- data[data$EVIDENCE %in% valid_evidence, ]
+
+  filtered_data <- data[, c("GO_ID", "ENSEMBL", "EVIDENCE", "SYMBOL")]
+
+  return(filtered_data)
 }

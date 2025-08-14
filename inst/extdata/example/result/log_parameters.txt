@@ -1,0 +1,10 @@
+   Species: zebrafish
+   GO file path: C:/Users/Ankory/YandexDisk/is_not_a_wolf/Networks/inst/extdata/annotations/Daniorerio_GO_ImmuneSystemProcess-EBI-UniProt-GOA_27.03.2019_00h00.txt.gz
+   Genes list path: C:/Users/Ankory/YandexDisk/is_not_a_wolf/Networks/inst/extdata/example/zebrafish_ensembl_symbol.csv
+   Config evidence path: C:/Users/Ankory/YandexDisk/is_not_a_wolf/Networks/inst/extdata/example/example_config_evidence.txt
+   Output folder path: C:/Users/Ankory/YandexDisk/is_not_a_wolf/Networks/inst/extdata/example/result
+   Connection type: common_go_term
+   GO level range: 5 to 20
+   Label type: SYMBOL
+   Threshold weight: 5
+   Layout option: layout_nicely
