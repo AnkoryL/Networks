@@ -19,11 +19,11 @@ load_and_validate_config <- function(config_path) {
 
   missing <- setdiff(required_keys, names(config))
   if (length(missing) > 0) {
-    stop("Missing required config parameters: ", paste(missing, collapse = ", "))
+    stop(error_messages$missing_config_parameters, paste(missing, collapse = ", "))
   }
 
   if (!(config$label_type %in% c("SYMBOL", "ENSEMBL", "both"))) {
-    stop("Invalid label_type. Must be one of: SYMBOL, ENSEMBL, both")
+    stop(error_messages$invalid_label_type)
   }
 
   message("      √ Config loaded successfully.")

@@ -17,6 +17,6 @@ read_input_file <- function(path) {
     message("      Gene-list is Excel file!")
     return(openxlsx::read.xlsx(path))
   } else {
-    stop("Unsupported file format. Please provide .csv, .tsv/.txt, or Excel file.")
+    stop(error_messages$unsupported_genes_file_format)
   }
 }

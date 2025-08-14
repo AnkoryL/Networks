@@ -9,6 +9,8 @@
 prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
 
     genes_list <- read_input_file(genes_list_path)
+    print(genes_list)
+
   # genes_list_vector <- unlist(genes_list[, 1])  # Assuming first column has Ensembl IDs
 
   if ("Ensembl_gene_id" %in% colnames(genes_list)) {
@@ -30,14 +32,14 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
 
 
     if (is.na(inferred_species)) {
-      stop("   Species could not be automatically inferred from input. Please check the matching of your Ensembl IDs, the entered species, and the GO annotation.")
+      stop(error_messages$species_not_automatically_inferred)
     } else {
       message(sprintf("      Automatically defined species: %s \n", inferred_species))
     }
 
     if (species_prefix!=inferred_species) {
       stop(sprintf(
-        "   The entered species ('%s') differs from the automatically determined one ('%s')",
+        error_messages$species_diffes,
         species_prefix, inferred_species
       ))
     }
@@ -55,7 +57,7 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
       "mouse"     = org.Mm.eg.db::org.Mm.eg.db,
       "macaque"   = org.Mmu.eg.db::org.Mmu.eg.db,
       "zebrafish" = org.Dr.eg.db::org.Dr.eg.db,
-      stop("Unsupported species prefix.")
+      stop(error_messages$unsupported_species_prefix)
     )
 
     suppressMessages(annotations <- AnnotationDbi::select(
@@ -65,12 +67,14 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
     ))
 
     data <- data.frame(Gene_symbol = genes_list$Gene_symbol)
+    print(data)
 
     annotationdbi_data_full <- dplyr::left_join(
       data,
       annotations[, c("ENSEMBL", "SYMBOL", "ENTREZID")],
       by = c("Gene_symbol" = "SYMBOL")
     )
+    print(annotationdbi_data_full)
 
     # Check Ensembl duplicates
     duplicated_symbol_mappings <- annotationdbi_data_full %>%
@@ -125,20 +129,20 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
     inferred_species <- infer_species(gene_df[1,])
 
     if (is.na(inferred_species)) {
-      stop("   Species could not be automatically inferred from input. Please check the matching of your Ensembl IDs, the entered species, and the GO annotation.")
-    } else {
-      message(sprintf("      Automatically defined species: %s\n", inferred_species))
+      stop(error_messages$species_not_automatically_inferred)
+      } else {
+      message(sprintf("      Automatically defined species: %s", inferred_species))
     }
 
     if (species_prefix!=inferred_species) {
       stop(sprintf(
-        "\n   The entered species ('%s') differs from the automatically determined one ('%s').\n",
+        error_messages$species_diffes,
         species_prefix, inferred_species
       ))
     }
 
   } else {
-    stop("\n   Input must contain either 'Ensembl_gene_id' or 'Gene_symbol' column.\n")
+    stop(error_messages$unsupported_genes_input)
   }
     return(gene_df)
 }

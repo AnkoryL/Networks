@@ -2,7 +2,7 @@
 % Please edit documentation in R/filter_go_annotations.R
 \name{filter_go_annotations}
 \alias{filter_go_annotations}
-\title{Filter GO annotations by level and evidence}
+\title{Filter GO annotations by level and evidence, returning a cleaned table for network building}
 \usage{
 filter_go_annotations(
   annotated_genes,
@@ -11,6 +11,18 @@ filter_go_annotations(
   level_to
 )
 }
+\arguments{
+\item{annotated_genes}{Data.frame with columns: GO_ID, ENSEMBL, EVIDENCE, SYMBOL, Level (comma-separated string)}
+
+\item{config_evidence_path}{Path to evidence configuration file}
+
+\item{level_from}{Minimum GO level to include}
+
+\item{level_to}{Maximum GO level to include}
+}
+\value{
+Data.frame with columns GO_ID, ENSEMBL, EVIDENCE, SYMBOL filtered by level and evidence
+}
 \description{
-Filter GO annotations by level and evidence
+Filter GO annotations by level and evidence, returning a cleaned table for network building
 }

@@ -9,6 +9,6 @@ get_annotation_db <- function(species_prefix) {
     "mouse"     = org.Mm.eg.db,
     "macaque"   = org.Mmu.eg.db,
     "zebrafish" = org.Dr.eg.db,
-    stop("Unsupported species prefix.")
+    stop(error_messages$unsupported_species_prefix)
   )
 }

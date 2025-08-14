@@ -21,10 +21,10 @@ get_go_file_by_prefix <- function(species_prefix, go_type) {
   )
 
   if (!go_type %in% names(type_map)) {
-    stop("Unknown go_type. Use one of: BP, MF, CC, IP")
+    stop(error_messages$unsupported_go_type)
   }
   if (!species_prefix %in% names(species_map)) {
-    stop("Unknown species_prefix. Use one of: human, mouse, macaque, zebrafish")
+    stop(error_messages$unsupported_species_prefix)
   }
 
   full_type <- type_map[[go_type]]
@@ -32,7 +32,7 @@ get_go_file_by_prefix <- function(species_prefix, go_type) {
 
   annotation_dir <- system.file("extdata/annotations", package = "Networks")
   if (annotation_dir == "") {
-    stop("Annotation directory not found in the package.")
+    stop(error_messages$not_found_annotation_directory)
   }
 
   all_files <- list.files(annotation_dir, full.names = TRUE)
@@ -42,7 +42,7 @@ get_go_file_by_prefix <- function(species_prefix, go_type) {
 
   if (length(matched) == 0) {
     stop(sprintf(
-      "No annotation file found for species = '%s' (%s), type = '%s'",
+      error_messages$not_found_annotation_file,
       species_prefix, full_species, full_type
     ))
   } else if (length(matched) > 1) {

@@ -15,6 +15,10 @@
 #'
 #' @return NULL
 #' @export
+#'
+
+
+
 run_pipeline <- function(
     genes_list_path,
     species_prefix,
@@ -33,7 +37,7 @@ run_pipeline <- function(
 
   if (!is.null(config_path)) {
     if (!file.exists(config_path)) {
-      stop("main_config.txt not found at: ", config_path)
+      stop(error_messages$not_found_main_config, config_path)
     }
     message("[2/10] Reading configuration from file...")
     config <- read_config_txt(config_path)
@@ -71,6 +75,7 @@ run_pipeline <- function(
     sprintf("   Layout option: %s", layout_name)
   )
 
+
   log_file <- file.path(output_folder_path, "log_parameters.txt")
   writeLines(log_lines, con = log_file)
 
@@ -89,54 +94,41 @@ run_pipeline <- function(
   annotated_genes <- annotate_with_go_terms(gene_df, go_df, output_folder_path, species_prefix)
 
   message("[7/10] Checking annotation coverage...")
-  missing <- annotated_genes %>%
-    dplyr::filter(is.na(SYMBOL) | is.na(GENE_ID) | is.na(GO_ID)) %>%
-    dplyr::pull(ENSEMBL) %>%
-    unique()
 
-  utils::write.table(missing, file = file.path(output_folder_path, "term_gene_table_not_mapped.txt"),
-                     sep = "\t", row.names = FALSE, quote = FALSE)
+  coverage_stats <- check_annotation_coverage(
+    annotated_genes = annotated_genes,
+    genes_list = unique(gene_df$ENSEMBL),
+    output_path = file.path(output_folder_path, "term_gene_table_not_mapped.txt")
+  )
+
+  message(sprintf("      Total Ensembl genes: %d, Unmapped Ensembl genes: %d", coverage_stats$total, coverage_stats$unmapped))
+
+  if (coverage_stats$unmapped >= coverage_stats$total - 1) {
+    stop(sprintf(
+      error_messages$all_genes_unmapped,
+      coverage_stats$total, coverage_stats$unmapped
+    ))
+  }
 
   message("[8/10] Filtering GO terms by evidence and level...")
   filtered_data <- filter_go_annotations(annotated_genes, config_evidence_path, level_from, level_to)
 
+  # if (is.null(filtered_data) || nrow(filtered_data) < 2) {
+  #   stop(error_messages$no_genes_after_filtering)
+  # }
+
+
   message("[9/10] Building network...")
+
   network <- build_network(
-    filtered_data,
-    gene_df,
-    duplicated_symbols = if (exists("duplicated_symbols")) duplicated_symbols else NULL,
+    filtered_data = filtered_data,
+    gene_df = gene_df,
     label_type = label_type,
     layout_name = layout_name,
     threshold = threshold,
     output_folder_path = output_folder_path,
     connection_type = connection_type
   )
-
-  final_path <- file.path(output_folder_path, "gene_interaction_output_table_for_cytoscape.csv")
-
-  if (label_type == "SYMBOL") {
-    sym1 <- filtered_data$SYMBOL[match(network$final_table$gene1, filtered_data$ENSEMBL)]
-    sym2 <- filtered_data$SYMBOL[match(network$final_table$gene2, filtered_data$ENSEMBL)]
-    network$final_table$gene1 <- sym1
-    network$final_table$gene2 <- sym2
-  } else if (label_type == "both") {
-    sym1 <- filtered_data$SYMBOL[match(network$final_table$gene1, filtered_data$ENSEMBL)]
-    sym2 <- filtered_data$SYMBOL[match(network$final_table$gene2, filtered_data$ENSEMBL)]
-    network$final_table$gene1 <- paste0(sym1, " (", network$final_table$gene1, ")")
-    network$final_table$gene2 <- paste0(sym2, " (", network$final_table$gene2, ")")
-  } else if (label_type == "SYMBOLalias") {
-    symbol_dict <- filtered_data %>%
-      dplyr::filter(!is.na(ENSEMBL), !is.na(SYMBOL)) %>%
-      dplyr::distinct(ENSEMBL, SYMBOL) %>%
-      dplyr::mutate(
-        is_dup = SYMBOL %in% duplicated_symbols,
-        display_label = ifelse(is_dup, paste0(SYMBOL, " (", ENSEMBL, ")"), SYMBOL)
-      )
-    network$final_table$gene1 <- symbol_dict$display_label[match(network$final_table$gene1, symbol_dict$ENSEMBL)]
-    network$final_table$gene2 <- symbol_dict$display_label[match(network$final_table$gene2, symbol_dict$ENSEMBL)]
-  }
-
-  utils::write.table(network$final_table, file = final_path, sep = "\t", quote = FALSE, row.names = FALSE)
 
   message("[10/10] Results saved.")
   message("Pipeline completed successfully!\n → Output folder: ", output_folder_path)
