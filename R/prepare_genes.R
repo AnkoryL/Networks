@@ -8,8 +8,14 @@
 #' @export
 prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
 
+   if (is.data.frame(genes_list_path)) {
+     genes_list <- genes_list_path
+  } else {
     genes_list <- read_input_file(genes_list_path)
     print(genes_list)
+  }
+
+
 
   # genes_list_vector <- unlist(genes_list[, 1])  # Assuming first column has Ensembl IDs
 
