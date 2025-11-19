@@ -21,7 +21,7 @@ filter_go_annotations(
 \item{level_to}{Maximum GO level to include}
 }
 \value{
-Data.frame with columns GO_ID, ENSEMBL, EVIDENCE, SYMBOL filtered by level and evidence
+Data.frame with columns GO_ID, Ensembl_gene_id , EVIDENCE, SYMBOL filtered by level and evidence
 }
 \description{
 Filter GO annotations by level and evidence, returning a cleaned table for network building
