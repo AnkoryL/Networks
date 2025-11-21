@@ -8,7 +8,6 @@ get_species_homologs(
   species_input,
   output_dir = "./results",
   save_csv = FALSE,
-  save_rds = FALSE,
   save_rdata = FALSE
 )
 }
@@ -19,9 +18,9 @@ get_species_homologs(
 
 \item{save_csv}{Logical. Whether to save CSV files.}
 
-\item{save_rds}{Logical. Whether to save .rds files.}
-
 \item{save_rdata}{Logical. Whether to save .RData files (for load()).}
+
+\item{save_rds}{Logical. Whether to save .rds files.}
 }
 \value{
 A named list of data frames with homolog tables.
