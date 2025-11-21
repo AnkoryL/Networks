@@ -13,7 +13,6 @@
 get_species_homologs <- function(species_input,
                                  output_dir = "./results",
                                  save_csv = FALSE,
-                                 save_rds = FALSE,
                                  save_rdata = FALSE) {
 
   species_map <- list(
