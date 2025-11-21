@@ -8,7 +8,8 @@ get_species_homologs(
   species_input,
   output_dir = "./results",
   save_csv = FALSE,
-  save_rda = FALSE
+  save_rds = FALSE,
+  save_rdata = FALSE
 )
 }
 \arguments{
@@ -16,12 +17,16 @@ get_species_homologs(
 
 \item{output_dir}{Character. Output directory.}
 
-\item{save_rda}{Logical. Whether to save .rda files.}
+\item{save_csv}{Logical. Whether to save CSV files.}
+
+\item{save_rds}{Logical. Whether to save .rds files.}
+
+\item{save_rdata}{Logical. Whether to save .RData files (for load()).}
 }
 \value{
 A named list of data frames with homolog tables.
 }
 \description{
 Queries Ensembl via biomaRt and retrieves homologs from human, mouse, macaque
-and zebrafish for the input species. Saves CSV (and optionally RDS) files.
+and zebrafish for the input species. Saves CSV, RDS, and optionally RData files.
 }

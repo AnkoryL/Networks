@@ -6,6 +6,7 @@
 #' @param level_to Maximum GO level to include
 #'
 #' @return Data.frame with columns GO_ID, Ensembl_gene_id , EVIDENCE, SYMBOL filtered by level and evidence
+#' @export
 filter_go_annotations <- function(annotated_genes, config_evidence_path, level_from, level_to) {
   config_evidence <- read.delim(config_evidence_path, sep = "\t", header = TRUE, stringsAsFactors = FALSE)
   valid_evidence <- config_evidence$Evidence[config_evidence$Boolean == "TRUE"]

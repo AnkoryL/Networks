@@ -1,17 +1,20 @@
 #' Retrieve homologs for all supported species
 #'
 #' Queries Ensembl via biomaRt and retrieves homologs from human, mouse, macaque
-#' and zebrafish for the input species. Saves CSV (and optionally RDS) files.
+#' and zebrafish for the input species. Saves CSV, RDS, and optionally RData files.
 #'
 #' @param species_input Character. One of: "human", "mouse", "macaque", "zebrafish".
 #' @param output_dir Character. Output directory.
-#' @param save_rda Logical. Whether to save .rda files.
+#' @param save_csv Logical. Whether to save CSV files.
+#' @param save_rds Logical. Whether to save .rds files.
+#' @param save_rdata Logical. Whether to save .RData files (for load()).
 #' @return A named list of data frames with homolog tables.
 #' @export
 get_species_homologs <- function(species_input,
                                  output_dir = "./results",
                                  save_csv = FALSE,
-                                 save_rda = FALSE) {
+                                 save_rds = FALSE,
+                                 save_rdata = FALSE) {
 
   species_map <- list(
     human     = list(dataset = "hsapiens_gene_ensembl",   prefix = "hsapiens"),
@@ -29,7 +32,6 @@ get_species_homologs <- function(species_input,
 
   ensembl <- biomaRt::useMart("ensembl")
   dataset_en <- biomaRt::useDataset(dataset_name, mart = ensembl)
-
 
   all_targets <- species_map
   all_targets[[species_input]] <- NULL
@@ -51,17 +53,18 @@ get_species_homologs <- function(species_input,
 
     res <- biomaRt::getBM(attributes = attrs, mart = dataset_en)
 
+    # CSV
     if (save_csv) {
-    csv_name <- file.path(output_dir, paste0(dataset_name, "_to_", tgt, "_orthologs.csv"))
-    write.table(res, csv_name, sep = "\t", quote = FALSE, row.names = FALSE)
-}
-    if (save_rda) {
-      rda_name <- file.path(output_dir, paste0(dataset_name, "_to_", tgt, "_orthologs.rda"))
-      saveRDS(res, rda_name)
+      csv_name <- file.path(output_dir, paste0(dataset_name, "_to_", tgt, "_orthologs.csv"))
+      write.table(res, csv_name, sep = "\t", quote = FALSE, row.names = FALSE)
     }
 
-    out[[tgt]] <- res
-  }
 
+    # RData
+    if (save_rdata) {
+      rdata_name <- file.path(output_dir, paste0(dataset_name, "_to_", tgt, "_orthologs.rda"))
+      save(res, file = rdata_name)
+    }
+  }
 
 }
