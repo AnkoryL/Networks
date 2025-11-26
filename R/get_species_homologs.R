@@ -11,7 +11,7 @@
 #' @return A named list of data frames with homolog tables.
 #' @export
 get_species_homologs <- function(species_input,
-                                 output_dir = "./results",
+                                 output_folder_path = file.path(Sys.getenv("USERPROFILE"), "Desktop", "Networks_results"),
                                  save_csv = FALSE,
                                  save_rdata = FALSE) {
 

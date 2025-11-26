@@ -6,7 +6,8 @@
 \usage{
 get_species_homologs(
   species_input,
-  output_dir = "./results",
+  output_folder_path = file.path(Sys.getenv("USERPROFILE"), "Desktop",
+    "Networks_results"),
   save_csv = FALSE,
   save_rdata = FALSE
 )
@@ -14,11 +15,11 @@ get_species_homologs(
 \arguments{
 \item{species_input}{Character. One of: "human", "mouse", "macaque", "zebrafish".}
 
-\item{output_dir}{Character. Output directory.}
-
 \item{save_csv}{Logical. Whether to save CSV files.}
 
 \item{save_rdata}{Logical. Whether to save .RData files (for load()).}
+
+\item{output_dir}{Character. Output directory.}
 
 \item{save_rds}{Logical. Whether to save .rds files.}
 }

@@ -12,7 +12,7 @@
 common_kegg_pathway <- function(
     genes_list_path,
     species_prefix,
-    output_folder_path = "./results",
+    output_folder_path = file.path(Sys.getenv("USERPROFILE"), "Desktop", "Networks_results"),
     use_ortholog = "none",
     label_type = "SYMBOL",
     layout_name = "layout_nicely",
@@ -41,7 +41,7 @@ common_kegg_pathway <- function(
     log_lines <- c(
       sprintf("Species: %s", species_prefix),
       sprintf("Genes list path: %s", genes_list_path),
-      sprintf("Output folder: %s", normalizePath(output_folder_path, winslash = "/", mustWork = FALSE)),
+      sprintf("Output folder: %s", output_folder_path),
       sprintf("Connection type: %s", connection_type),
       sprintf("Use ortholog: %s", use_ortholog),
       sprintf("Label type: %s", label_type),

@@ -7,7 +7,8 @@
 relation_in_kegg_pathway(
   genes_list_path,
   species_prefix,
-  output_folder_path = "./results",
+  output_folder_path = file.path(Sys.getenv("USERPROFILE"), "Desktop",
+    "Networks_results"),
   use_ortholog = "none",
   label_type = "SYMBOL",
   layout_name = "layout_nicely",
