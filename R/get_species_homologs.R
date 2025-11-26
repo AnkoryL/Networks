@@ -25,8 +25,8 @@ get_species_homologs <- function(species_input,
   if (!species_input %in% names(species_map))
     stop("Unsupported species: ", species_input)
 
-  dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
-
+  output_folder_path <- normalizePath(output_folder_path, winslash = "/", mustWork = FALSE)
+  if (!dir.exists(output_folder_path)) dir.create(output_folder_path, recursive = TRUE)
   dataset_name <- species_map[[species_input]]$dataset
 
   ensembl <- biomaRt::useMart("ensembl")

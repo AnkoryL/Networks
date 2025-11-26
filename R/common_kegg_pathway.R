@@ -34,9 +34,13 @@ common_kegg_pathway <- function(
     species_prefix <- use_ortholog
   }
 
+
   message("[3/10] Logging pipeline parameters...")
-    log_file <- file.path(output_folder_path, "log_parameters.txt")
-    dir.create(output_folder_path, showWarnings = FALSE, recursive = TRUE)
+  output_folder_path <- normalizePath(output_folder_path, winslash = "/", mustWork = FALSE)
+  if (!dir.exists(output_folder_path)) dir.create(output_folder_path, recursive = TRUE)
+
+  log_file <- file.path(output_folder_path, "log_parameters.txt")
+
 
     log_lines <- c(
       sprintf("Species: %s", species_prefix),

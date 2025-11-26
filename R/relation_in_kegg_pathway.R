@@ -36,8 +36,10 @@ relation_in_kegg_pathway <- function(
   }
 
   message("[3/10] Logging pipeline parameters...")
+  output_folder_path <- normalizePath(output_folder_path, winslash = "/", mustWork = FALSE)
+  if (!dir.exists(output_folder_path)) dir.create(output_folder_path, recursive = TRUE)
+
   log_file <- file.path(output_folder_path, "log_parameters.txt")
-  dir.create(output_folder_path, showWarnings = FALSE, recursive = TRUE)
 
   log_lines <- c(
     sprintf("Species: %s", species_prefix),
