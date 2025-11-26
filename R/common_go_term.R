@@ -31,6 +31,8 @@ common_go_term <- function(
   message("[1/10] Starting pipeline...")
 
     connection_type <- as.character(match.call()[[1]])
+    output_folder_path <- normalizePath(output_folder_path, winslash = "/", mustWork = FALSE)
+    if (!dir.exists(output_folder_path)) dir.create(output_folder_path, recursive = TRUE)
 
     message("[2/10] Reading gene list...")
     # gene_df <- read_input_file(genes_list_path)
@@ -44,8 +46,6 @@ common_go_term <- function(
     }
 
   message("[3/10] Checking/creating output folder and logging parameters...")
-  output_folder_path <- normalizePath(output_folder_path, winslash = "/", mustWork = FALSE)
-  if (!dir.exists(output_folder_path)) dir.create(output_folder_path, recursive = TRUE)
 
   log_file <- file.path(output_folder_path, "log_parameters.txt")
 
