@@ -18,10 +18,11 @@ convert_genes_to_orthologs <- function(
     genes_list_path,
     from_species,
     to_species,
-    output_folder_path = "./results_orthologs"
+    output_folder_path = file.path(Sys.getenv("USERPROFILE"), "Desktop", "Networks_results")
 ) {
   message("[1/4] Reading input genes...")
-  dir.create(output_folder_path, showWarnings = FALSE, recursive = TRUE)
+  output_folder_path <- normalizePath(output_folder_path, winslash = "/", mustWork = FALSE)
+  if (!dir.exists(output_folder_path)) dir.create(output_folder_path, recursive = TRUE)
 
   gene_df <- prepare_genes(
     genes_list_path = genes_list_path,

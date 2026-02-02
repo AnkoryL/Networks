@@ -98,6 +98,10 @@ common_go_term <- function(
   message("[9/10] Save results...")
   out_path_table <- file.path(output_folder_path, paste0(species_prefix, "_", connection_type, "_gene_interaction_output_table_for_cytoscape.csv"))
   write.table(network$final_table, file = out_path_table, sep = "\t", quote = FALSE, row.names = FALSE)
+  openxlsx::write.xlsx(
+    network$final_table,
+    file = sub("_for_cytoscape\\.csv$", ".xlsx", out_path_table),
+    rowNames = FALSE)
 
   write(sprintf("Network connectivity: %.3f", network$connectivity),
         file = log_file, append = TRUE)

@@ -18,6 +18,7 @@
 #'   \item{connectivity}{Fraction of vertices in the largest component}
 #'
 #' @export
+
 build_go_network <- function(
     filtered_data,
     gene_df,
@@ -45,16 +46,15 @@ build_go_network <- function(
   all_vertices <- igraph::V(go_gene_graph)$name
   gene_list <- gene_go_terms$Ensembl_gene_id
   valid_genes <- gene_list[gene_list %in% all_vertices]
-
   if (length(valid_genes) < 2) stop("Not enough valid genes to build network.")
-
-  edge_info <- list()
 
   gene_matrix <- matrix(0, nrow = length(valid_genes), ncol = length(valid_genes),
                         dimnames = list(valid_genes, valid_genes))
 
-  for (i in 1:(length(valid_genes) - 1)) {
-    for (j in (i + 1):length(valid_genes)) {
+  edge_info <- list()
+
+  for (i in 1:(length(valid_genes)-1)) {
+    for (j in (i+1):length(valid_genes)) {
       gi <- valid_genes[i]
       gj <- valid_genes[j]
 
@@ -63,11 +63,18 @@ build_go_network <- function(
       common_terms <- intersect(terms_i, terms_j)
       if (length(common_terms) == 0) next
 
+      # values_vec <- sapply(common_terms, function(go) {
+      #   evi_i <- filtered_data$EVIDENCE[filtered_data$Ensembl_gene_id == gi & filtered_data$GO_ID == go]
+      #   evi_j <- filtered_data$EVIDENCE[filtered_data$Ensembl_gene_id == gj & filtered_data$GO_ID == go]
+      #   paste0(go, "(", evi_i, "—", evi_j, ")")
+      # })
+
       values_vec <- sapply(common_terms, function(go) {
-        evi_i <- filtered_data$EVIDENCE[filtered_data$Ensembl_gene_id == gi & filtered_data$GO_ID == go]
-        evi_j <- filtered_data$EVIDENCE[filtered_data$Ensembl_gene_id == gj & filtered_data$GO_ID == go]
+        evi_i <- paste(filtered_data$EVIDENCE[filtered_data$Ensembl_gene_id == gi & filtered_data$GO_ID == go], collapse=",")
+        evi_j <- paste(filtered_data$EVIDENCE[filtered_data$Ensembl_gene_id == gj & filtered_data$GO_ID == go], collapse=",")
         paste0(go, "(", evi_i, "—", evi_j, ")")
       })
+
 
       edge_info[[paste0(gi, "--", gj)]] <- paste(values_vec, collapse = "; ")
       gene_matrix[i, j] <- length(common_terms)
@@ -80,12 +87,8 @@ build_go_network <- function(
   gene_gene_graph <- igraph::delete_vertices(gene_gene_graph, which(igraph::degree(gene_gene_graph) == 0))
   vertices <- igraph::V(gene_gene_graph)$name
 
-
   g_components <- igraph::components(gene_gene_graph)
-  max_component_size <- max(g_components$csize)
-  total_vertices <- igraph::vcount(gene_gene_graph)
-  connectivity_ratio <- max_component_size / total_vertices
-
+  connectivity_ratio <- max(g_components$csize) / igraph::vcount(gene_gene_graph)
 
   if (label_type == "SYMBOL") {
     igraph::V(gene_gene_graph)$label <- filtered_data$SYMBOL[match(vertices, filtered_data$Ensembl_gene_id)]
@@ -96,16 +99,14 @@ build_go_network <- function(
     igraph::V(gene_gene_graph)$label <- paste0(sym, " (", vertices, ")")
   } else if (label_type == "SYMBOLalias") {
     if (is.null(duplicated_symbols)) stop(error_messages$no_duplicated_symbol)
-    symbol_by_ensembl <- filtered_data$SYMBOL[match(vertices, filtered_data$Ensembl_gene_id)]
-    is_dup <- symbol_by_ensembl %in% duplicated_symbols
-    igraph::V(gene_gene_graph)$label <- ifelse(is_dup, paste0(symbol_by_ensembl, " (", vertices, ")"), symbol_by_ensembl)
+    sym_by_id <- filtered_data$SYMBOL[match(vertices, filtered_data$Ensembl_gene_id)]
+    is_dup <- sym_by_id %in% duplicated_symbols
+    igraph::V(gene_gene_graph)$label <- ifelse(is_dup, paste0(sym_by_id, " (", vertices, ")"), sym_by_id)
   }
-
   igraph::V(gene_gene_graph)$color <- "lightblue"
 
   layout_fun <- getExportedValue("igraph", layout_name)
   coords <- layout_fun(gene_gene_graph)
-
   plot_path <- file.path(output_folder_path, "gene_network_plot.png")
   grDevices::png(plot_path, width = 4800, height = 3240, res = 300)
   plot(gene_gene_graph, vertex.size = 8, vertex.label.cex = 0.6,
@@ -114,22 +115,20 @@ build_go_network <- function(
        edge.label.font = 1, edge.label.dist = 0.01, layout = coords)
   grDevices::dev.off()
 
-  if (length(edge_info) == 0) stop("No gene interactions found.")
-
-  edge_info_filtered <- edge_info[sapply(edge_info, function(x) {
-    length(strsplit(x, "; ")[[1]]) >= threshold
-  })]
-
-  if (length(edge_info_filtered) == 0) stop("No gene interactions found above threshold.")
+  if (length(igraph::E(gene_gene_graph)) == 0) stop("No gene interactions found above threshold.")
 
   edge_df <- data.frame(
-    gene1 = sapply(strsplit(names(edge_info), "--"), `[`, 1),
-    gene2 = sapply(strsplit(names(edge_info), "--"), `[`, 2),
-    connection_type_info = paste0("GO",";",connection_type),
-    supplemental_info <- paste("undirected"),
-    values = unlist(edge_info),
+    gene1 = igraph::ends(gene_gene_graph, es = igraph::E(gene_gene_graph))[,1],
+    gene2 = igraph::ends(gene_gene_graph, es = igraph::E(gene_gene_graph))[,2],
+    connection_type_info = paste0("GO;", connection_type),
+    supplemental_info = "undirected",
+    values = sapply(igraph::E(gene_gene_graph), function(e) {
+      key <- paste0(igraph::ends(gene_gene_graph, e)[1], "--", igraph::ends(gene_gene_graph, e)[2])
+      edge_info[[key]]
+    }),
     stringsAsFactors = FALSE
   )
+
 
   if (label_type == "SYMBOL") {
     edge_df$gene1 <- filtered_data$SYMBOL[match(edge_df$gene1, filtered_data$Ensembl_gene_id)]
@@ -144,7 +143,7 @@ build_go_network <- function(
       dplyr::filter(!is.na(Ensembl_gene_id), !is.na(SYMBOL)) %>%
       dplyr::distinct(Ensembl_gene_id, SYMBOL) %>%
       dplyr::mutate(is_dup = SYMBOL %in% duplicated_symbols,
-                    display_label = ifelse(is_dup, paste0(SYMBOL, " (", ENSEMBL, ")"), SYMBOL))
+                    display_label = ifelse(is_dup, paste0(SYMBOL, " (", Ensembl_gene_id, ")"), SYMBOL))
     edge_df$gene1 <- symbol_dict$display_label[match(edge_df$gene1, symbol_dict$Ensembl_gene_id)]
     edge_df$gene2 <- symbol_dict$display_label[match(edge_df$gene2, symbol_dict$Ensembl_gene_id)]
   }
@@ -176,6 +175,8 @@ build_go_network <- function(
 #'   \item{connectivity}{Fraction of vertices in the largest connected component}
 #'
 #' @export
+
+
 build_kegg_network <- function(
     filtered_data,
     gene_df,
@@ -187,13 +188,10 @@ build_kegg_network <- function(
 
   if (is.null(filtered_data) || nrow(filtered_data) < 2) stop("No genes available for network.")
 
-
   intersection <- intersect(filtered_data$Gene_symbol, unique(gene_df$Gene_symbol))
   if (length(intersection) == 0) stop("No genes overlap between annotation and input list.")
 
-  gene_pathways <- stats::aggregate(pathway_id ~ Gene_symbol, filtered_data, toString)
-
-  gene_list <- unique(  filtered_data$Gene_symbol)
+  gene_list <- unique(filtered_data$Gene_symbol)
   gene_matrix <- matrix(0, nrow = length(gene_list), ncol = length(gene_list),
                         dimnames = list(gene_list, gene_list))
   edge_info <- list()
@@ -203,10 +201,10 @@ build_kegg_network <- function(
       gi <- gene_list[i]
       gj <- gene_list[j]
 
-      pathways_i <- filtered_data$pathway_id[  filtered_data$Gene_symbol == gi]
-      pathways_j <- filtered_data$pathway_id[  filtered_data$Gene_symbol == gj]
+      pathways_i <- unique(filtered_data$pathway_id[filtered_data$Gene_symbol == gi])
+      pathways_j <- unique(filtered_data$pathway_id[filtered_data$Gene_symbol == gj])
       common_paths <- intersect(pathways_i, pathways_j)
-      if (length(common_paths) == 0) next
+      if (length(common_paths) < threshold) next  # применяем фильтр сразу
 
       edge_info[[paste0(gi, "--", gj)]] <- paste(common_paths, collapse = "; ")
       gene_matrix[i, j] <- length(common_paths)
@@ -214,16 +212,14 @@ build_kegg_network <- function(
     }
   }
 
+  if (length(edge_info) == 0) stop("No gene interactions found above threshold.")
+
   gene_gene_graph <- igraph::graph_from_adjacency_matrix(gene_matrix, mode = "undirected", weighted = TRUE, diag = FALSE)
-  gene_gene_graph <- igraph::delete_edges(gene_gene_graph, igraph::E(gene_gene_graph)[igraph::E(gene_gene_graph)$weight < threshold])
   gene_gene_graph <- igraph::delete_vertices(gene_gene_graph, which(igraph::degree(gene_gene_graph) == 0))
   vertices <- igraph::V(gene_gene_graph)$name
 
   g_components <- igraph::components(gene_gene_graph)
-  max_component_size <- max(g_components$csize)
-  total_vertices <- igraph::vcount(gene_gene_graph)
-  connectivity_ratio <- max_component_size / total_vertices
-
+  connectivity_ratio <- max(g_components$csize) / igraph::vcount(gene_gene_graph)
 
   if (label_type == "SYMBOL") {
     igraph::V(gene_gene_graph)$label <- vertices
@@ -243,20 +239,12 @@ build_kegg_network <- function(
        edge.color = "gray", layout = coords)
   grDevices::dev.off()
 
-  if (length(edge_info) == 0) stop("No gene interactions found.")
-
-  edge_info_filtered <- edge_info[sapply(edge_info, function(x) {
-    length(strsplit(x, "; ")[[1]]) >= threshold
-  })]
-
-  if (length(edge_info_filtered) == 0) stop("No gene interactions found above threshold.")
-
   edge_df <- data.frame(
-    gene1 = sapply(strsplit(names(edge_info_filtered), "--"), `[`, 1),
-    gene2 = sapply(strsplit(names(edge_info_filtered), "--"), `[`, 2),
+    gene1 = sapply(strsplit(names(edge_info), "--"), `[`, 1),
+    gene2 = sapply(strsplit(names(edge_info), "--"), `[`, 2),
     connection_type_info = paste0("KEGG",";",connection_type),
-    supplemental_info <- paste("undirected"),
-    values = unlist(edge_info_filtered),
+    supplemental_info = "undirected",
+    values = unlist(edge_info),
     stringsAsFactors = FALSE
   )
 

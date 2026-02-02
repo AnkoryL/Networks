@@ -74,6 +74,7 @@ relation_in_kegg_pathway <- function(
     quote = FALSE
   )
 
+
   message("Annotated genes: ", length(annotated_genes))
   message("Not mapped genes: ", length(not_mapped))
 
@@ -139,6 +140,11 @@ relation_in_kegg_pathway <- function(
 
   out_path_table <- file.path(output_folder_path, paste0(species_prefix, "_", connection_type, "_gene_interaction_output_table_for_cytoscape.csv"))
   write.table(final_table, file = out_path_table, sep = "\t", quote = FALSE, row.names = FALSE)
+
+    openxlsx::write.xlsx(
+    final_table,
+    file = sub("_for_cytoscape\\.csv$", ".xlsx", out_path_table),
+    rowNames = FALSE)
 
   write(sprintf("Network connectivity: %.3f", connectivity),
         file = log_file, append = TRUE)

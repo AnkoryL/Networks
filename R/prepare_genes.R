@@ -3,7 +3,7 @@
 #' @param genes_list_path Path to gene list file.
 #' @param species_prefix Expected species.
 #' @param output_folder_path Path for outputs (e.g., duplicated symbols).
-#'
+#' @importFrom magrittr %>%
 #' @return A data frame with Ensembl gene IDs.
 #' @export
 #'
