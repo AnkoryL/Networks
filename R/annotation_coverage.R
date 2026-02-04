@@ -1,4 +1,5 @@
 #' Save unmapped genes to file
+#' @importFrom magrittr %>%
 #' @export
 check_annotation_coverage <- function(annotated_genes, genes_list, output_path) {
   genes_list <- unique(genes_list)

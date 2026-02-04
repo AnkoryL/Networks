@@ -4,6 +4,7 @@
 #' in the package. It is internal and not exported to the user.
 #'
 #' @keywords internal
+#' @export
 error_messages <- list(
   no_genes_after_filtering = "\n   No genes remain after filtering GO annotations.\n   Please try a larger gene list or loosen filtering criteria (evidence or level range).\n",
   not_found_main_config = "main_config.txt not found at: ",

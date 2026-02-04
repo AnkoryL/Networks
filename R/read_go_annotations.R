@@ -2,6 +2,7 @@
 #'
 #' @param go_file_path Path to GO annotation file.
 #' @param species_prefix Species prefix for mapping.
+#' @importFrom magrittr %>%
 #'
 #' @return A data frame with GO + SYMBOL + ENSEMBL.
 #' @export

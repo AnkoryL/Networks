@@ -1,6 +1,7 @@
 #' @importFrom AnnotationDbi select keys
 #' @import org.Hs.eg.db org.Mm.eg.db org.Mmu.eg.db org.Dr.eg.db
-NULL
+#' @export
+
 
 get_annotation_db <- function(species_prefix) {
   switch(

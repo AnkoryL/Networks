@@ -4,6 +4,7 @@
 #'
 #' @return A data frame with columns: GO_ID, Level, Category, GENE_ID, EVIDENCE.
 #' @keywords internal
+#' @export
 parse_go_line <- function(line) {
   parts <- unlist(strsplit(line, "\t"))
 
