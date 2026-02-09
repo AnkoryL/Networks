@@ -57,22 +57,7 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 			}
 		
 		}
-		# if (!is_bioc_generics_installed) {
-			# suppressWarnings(BiocManager::install("BiocGenerics",...,dependencies=FALSE))
-			# did_it_install_correctly<-suppressMessages(require("BiocManager",character.only=TRUE))
-			# if (!did_it_install_correctly) {
-				# stop("BiocGenerics is not installed and could not be installed automatically in bioconductor mode")
-			# }
 		
-		# }
-		# if (!is_bioc_version_installed) {
-			# suppressWarnings(BiocManager::install("BiocVersion",...,dependencies=FALSE))
-			# did_it_install_correctly<-suppressMessages(require("BiocVersion",character.only=TRUE))
-			# if (!did_it_install_correctly) {
-				# stop("BiocVersion is not installed and could not be installed automatically in bioconductor mode")
-			# }
-		
-		# }
 		
 	}
 	if (mode_cran_or_bioc==tolower("Bioconductor")) {
