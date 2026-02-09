@@ -7,6 +7,9 @@ user_home <- file.path(Sys.getenv("HOME"))
 user_lib <- file.path(Sys.getenv("HOME"), "R", "libs")
 here<-try(file.create(paste0(user_home,"/","test_test")))
 if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
+# if (!require("BiocManager", quietly = TRUE))
+    # install.packages("BiocManager")
+# BiocManager::install(version = "3.22",lib=user_lib,ask=FALSE)
 
 
 mirror_list_3<-c("https://cloud.r-project.org",
@@ -16,7 +19,8 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 	#The idea of this fucntion is to be as hands off and persistent as reasonable in installing the package in the enviornment of not-so-stable internet connection.
 	#Well, if that is the idea - we should have an individual access to every package installation
 	#Therefore, we are feeding install packages or bioc manager with packages 1 by 1.
-	
+	# pkg_i<-"KEGGREST"
+	# BiocManager::install(pkg_i,dependencies=FALSE,lib=lib_path,force = TRUE)
 	# user_lib<-lib
 	# print(user_lib)
 	if (is.na(mirror_list_cran)) {
@@ -98,13 +102,18 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 				current_mirror<-as.character(current_mirror)
 				tryCatch({
 				options(repos = c(CRAN = mirror_list_cran[1]))
+				# options(repos = c(CRAN = "@CRAN@"))
+				# pkg_i2<-"KEGGREST"
+				# BiocManager::install(pkg_i2,dependencies=FALSE,lib=lib_path,force = TRUE,site_repository=repositories()[1])
+
 				av_pack_cran<-available.packages()
 				package_dep_inside<-tools::package_dependencies(packages=pkg_i,db=av_pack_cran,recursive=FALSE)
 				is_a_cran_pack<-pkg_i %in% av_pack_cran[,1]
 				# print("we are here")
 				# print(dim(av_pack_cran))
 				if (mode_cran_or_bioc==tolower("Bioconductor")) {
-				suppressMessages(options(repos = c(CRAN = repositories()[1])))
+				# suppressMessages(options(repos = c(CRAN = repositories()[1])))
+				options(repos = c(CRAN = repositories()[1]))
 				av_pack_bioc<-available.packages()
 				is_a_bioc_pack<-pkg_i %in% av_pack_bioc[,1]
 				} else {
@@ -180,9 +189,9 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 						message<-paste0("Runnin BIOCMANAGER INSTALL to install ", pkg_i, " in mode ",mode_cran_or_bioc, " from mirror ", current_mirror)
 						print(message)
 						# options(repos = c(CRAN = current_mirror))
-						# options(repos = c(CRAN = repositories()[1]))
+						options(repos = c(CRAN = repositories()[1]))
 						chooseBioCmirror(ind=as.character(current_mirror))
-						BiocManager::install(pkg_i,dependencies=FALSE,...,lib=lib_path,force = TRUE)
+						BiocManager::install(pkgs=pkg_i,dependencies=FALSE,lib=lib_path,force = TRUE,site_repository=repositories()[1])
 						message<-paste0("BIOCmanager finished sucesfully")
 						print(message)
 					}
@@ -249,4 +258,9 @@ persistent_install_packages(c("AnnotationDbi"),mode_cran_or_bioc=2,lib_path=user
 			# dependencies = c("Imports", "LinkingTo"),
 			# build_vignettes = FALSE,
 			# upgrade = "never")
-
+test_f<-function () {
+		options(repos = c(CRAN = mirror_list_3[1]))
+		pkg_i2<-"KEGGREST"
+		BiocManager::install(pkg_i2,dependencies=FALSE,lib=user_lib,force = TRUE)
+}
+test_f()
