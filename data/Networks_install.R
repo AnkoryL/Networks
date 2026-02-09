@@ -1,4 +1,6 @@
 #Rscript "C:/Users/Ankory/Desktop/Networks_install.R"
+#Rscript "C:\ivan_work\Networks\data\Networks_install.R"
+
 Sys.setenv(LANG="en")
 user_home <- file.path(Sys.getenv("HOME"))
 user_lib <- file.path(Sys.getenv("HOME"), "R", "libs")
@@ -9,11 +11,16 @@ if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
 mirror_list_3<-c("https://cloud.r-project.org",
 "https://cran.uni-muenster.de/")
 
-persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,global_tries_max=2,force_reinstall=FALSE,mirror_list="https://cloud.r-project.org",mode_cran_or_bioc=c("CRAN")) {
+persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,global_tries_max=2,force_reinstall=FALSE,mirror_list_cran=NA,mirror_list_bioc=NA,mode_cran_or_bioc=c("CRAN")) {
 	#The idea of this fucntion is to be as hands off and persistent as reasonable in installing the package in the enviornment of not-so-stable internet connection.
 	#Well, if that is the idea - we should have an individual access to every package installation
 	#Therefore, we are feeding install packages or bioc manager with packages 1 by 1.
-	
+	if (is.na(mirror_list_cran)) {
+	mirror_list_cran<-c("https://cloud.r-project.org","https://cran.uni-muenster.de/")
+	}
+	if (is.na(mirror_list_bioc)) {
+	mirror_list_bioc<-as.character(1:16)
+	}
 	# this part is enitrely about making sure that correct mode_cran_or_bioc is chosen, correct mirror list is chosen and bioconductor is installed (if needed)
 	acceptable_modes<-tolower(as.character(c("CRAN","Bioconductor",1,2)))
 	mode_cran_or_bioc<-tolower(as.character(mode_cran_or_bioc[1]))
@@ -26,6 +33,8 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 	}
 	if (mode_cran_or_bioc == tolower("Bioconductor")) {
 		is_bioc_manager_installed<-suppressMessages(require("BiocManager",character.only=TRUE))
+		is_bioc_generics_installed<-suppressMessages(require("BiocGenerics",character.only=TRUE))
+		is_bioc_version_installed<-suppressMessages(require("BiocVersion",character.only=TRUE))
 
 		if (!is_bioc_manager_installed) {
 			suppressWarnings(persistent_install_packages("BiocManager", mirror_list="https://cloud.r-project.org",mode_cran_or_bioc="CRAN",force_reinstall=FALSE))
@@ -35,15 +44,37 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 			}
 		
 		}
+		# if (!is_bioc_generics_installed) {
+			# suppressWarnings(BiocManager::install("BiocGenerics",...,dependencies=FALSE))
+			# did_it_install_correctly<-suppressMessages(require("BiocManager",character.only=TRUE))
+			# if (!did_it_install_correctly) {
+				# stop("BiocGenerics is not installed and could not be installed automatically in bioconductor mode")
+			# }
+		
+		# }
+		# if (!is_bioc_version_installed) {
+			# suppressWarnings(BiocManager::install("BiocVersion",...,dependencies=FALSE))
+			# did_it_install_correctly<-suppressMessages(require("BiocVersion",character.only=TRUE))
+			# if (!did_it_install_correctly) {
+				# stop("BiocVersion is not installed and could not be installed automatically in bioconductor mode")
+			# }
+		
+		# }
 		
 	}
-	if (mode_cran_or_bioc==tolower("Bioconductor") & any(!is.numeric(mirror_list))) {
-	mirror_list<-as.character(1:16)
-	} 
+	if (mode_cran_or_bioc==tolower("Bioconductor")) {
+	mirror_list<-mirror_list_bioc
+	} else if (mode_cran_or_bioc==tolower("cran")) {
+	mirror_list<-mirror_list_cran
+	} else {
+	print(mode_cran_or_bioc)
+	stop("no expected mode detected")
+	}
 	# print("mode check succesfull")
-	
+	mirror_list<-as.character(mirror_list)
 	for (i in 1:length(pkgs)) {
 		pkg_i<-pkgs[i]
+		print(paste0("Attempting to install package ",pkg_i, " in mode ",mode_cran_or_bioc))
 		global_tries<-0
 		is_pkg_i_installed_already<-suppressMessages(require(pkg_i,character.only=TRUE))
 		if (force_reinstall & is_pkg_i_installed_already) {
@@ -60,34 +91,45 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 				global_tries<-global_tries+1
 				mirror_list_pos<-(global_tries %% length(mirror_list))+1 
 				current_mirror<-mirror_list[mirror_list_pos]
-				# print(current_mirror)
+				current_mirror<-as.character(current_mirror)
 				tryCatch({
-				print("check 1")
 				if (mode_cran_or_bioc==tolower("CRAN")) {
 					options(repos = c(CRAN = current_mirror))
 					av_pack<-available.packages()
-
+					package_dep_inside<-tools::package_dependencies(packages=pkg_i,db=av_pack,recursive=FALSE)
+	
 				} 
 				if (mode_cran_or_bioc==tolower("Bioconductor")) {
-					print("we are here")
-					chooseBioCmirror(ind=as.character(current_mirror))
-					options(repos = c(CRAN = repositories()[1]))
+					# print("we are here")
+					suppressMessages(options(repos = c(CRAN = mirror_list_cran[1])))
+					av_pack_cran<-available.packages()
+					# print(dim(av_pack_cran))
 
-					av_pack<-available.packages()
-					print("av_pack fetch sucesfull")
+					suppressMessages(options(repos = c(CRAN = repositories()[1])))
+					av_pack_bioc<-available.packages()
+					# print(dim(av_pack_bioc))
+
+					is_a_cran_pack<-pkg_i %in% av_pack_cran[,1]
+					# print(paste0(pkg_i," is a cran package:",is_a_cran_pack))
+					is_a_bioc_pack<-pkg_i %in% av_pack_bioc[,1]
+					# print(paste0(pkg_i," is a bioc package:",is_a_bioc_pack))
+					# chooseBioCmirror(ind=as.character(current_mirror))
+
+					if (is_a_cran_pack) {
+					package_dep_inside<-tools::package_dependencies(packages=pkg_i,db=av_pack_cran,recursive=FALSE)
+					} else if (is_a_bioc_pack) {
+					package_dep_inside<-tools::package_dependencies(packages=pkg_i,db=av_pack_bioc,recursive=FALSE)
+					} else {
+					stop(paste0("Package ",pkg_i, " found in neither CRAN or Bioc"))
+					}
+
 				}
 
-				print("check 2")
-				# print(dim(av_pack))
-				print("check 3")
-				package_dep_inside<-tools::package_dependencies(packages=pkg_i,db=av_pack,recursive=FALSE)				
-
-				# print(package_dep_inside)
 				toinstall<-unlist(package_dep_inside,use.names=FALSE)
-				toinstall<-toinstall[!(toinstall=="BiocManager")]
+				# toinstall<-toinstall[!(toinstall %in% c("BiocManager")]
+
 				
 					if (!is.null(toinstall) & !any(is.na(toinstall)) & !identical(character(0),toinstall)) {
-						# print(toinstall)
 						# if (length) {
 						stat_is_installed_already=rep(FALSE,length(toinstall))
 					for (j in 1:length(toinstall)) {
@@ -111,9 +153,12 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 							print(paste("Missing dependencies",paste(unmet_dependencies_to_install,sep=" ",collapse=" "), sep=" ",collapse=NULL))
 							# Here we are working on an assumption that if av_pack can be resolved, mirror is working and therefore we should use it
 								if (mode_cran_or_bioc==tolower("CRAN")) {
-									suppressWarnings(persistent_install_packages(unmet_dependencies_to_install, mirror_list=current_mirror,mode_cran_or_bioc=1))
-								} else if (mode_cran_or_bioc==tolower("Bioconductor")) {
-									suppressWarnings(persistent_install_packages(unmet_dependencies_to_install,mode_cran_or_bioc="bioconductor", mirror_list=current_mirror))
+									suppressWarnings(persistent_install_packages(unmet_dependencies_to_install, mode_cran_or_bioc=1,...))
+								} else if (mode_cran_or_bioc==tolower("Bioconductor") & is_a_cran_pack) {
+									suppressWarnings(persistent_install_packages(unmet_dependencies_to_install,mode_cran_or_bioc=1,...))
+								} else if (mode_cran_or_bioc==tolower("Bioconductor") & is_a_bioc_pack) {
+									suppressWarnings(persistent_install_packages(unmet_dependencies_to_install,mode_cran_or_bioc=2,...))
+
 								}
 							
 						}	
@@ -121,9 +166,26 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 					# print(paste0("Attempting to instal package ",pkg_i," check following conditions: stat_is_installed_already ",stat_is_installed_already, " unmet_dependencies_to_install ", unmet_dependencies_to_install ))
 					if (is.na(pkg_i)) {stop("trying to install package named NA, this should not happen")}
 					if (mode_cran_or_bioc==tolower("CRAN")) {
+
+						message<-paste0("Runnin install packages to install ", pkg_i, " in mode ",mode_cran_or_bioc, " from mirror ", current_mirror)
+						print(message)
+						options(repos = c(CRAN = current_mirror))
 						install.packages(pkg_i,...,dependencies=NULL)
+						message<-paste0("Install packages finished sucesfully")
+						print(message)
+
+
 					} else if (mode_cran_or_bioc==tolower("bioconductor")) {
-						BiocManager::install(pkg_i,...,dependencies=NULL)
+					# print("test")
+						message<-paste0("Runnin BIOCMANAGER INSTALL to install ", pkg_i, " in mode ",mode_cran_or_bioc, " from mirror ", current_mirror)
+						print(message)
+						# options(repos = c(CRAN = current_mirror))
+						# options(repos = c(CRAN = repositories()[1]))
+						chooseBioCmirror(ind=as.character(current_mirror))
+						BiocManager::install(pkg_i,dependencies=FALSE)
+						message<-paste0("BIOCmanager finished sucesfully")
+						print(message)
+
 					}
 				}, error=function(cond){
 					message(paste0("Error while trying to install package ", pkg_i, " using mirror ",current_mirror))
@@ -131,7 +193,7 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 					message(conditionMessage(cond))
 				}, warning=function(cond) {
 					message(paste0("Install packages caused a warning while installing  ", pkg_i, " using mirror ",current_mirror))
-					message("Original error message:")
+					message("Original warning message:")
 					message(conditionMessage(cond))
 				}, finally={
 						is_pkg_i_installed_already<-suppressMessages(require(pkg_i,character.only=TRUE))
@@ -164,7 +226,7 @@ if (!dir.exists(user_lib)) dir.create(user_lib, recursive = TRUE, showWarnings =
 # install.packages("BiocManager",lib=user_lib)
 # persistent_install_packages(c("BiocManager","remote","dplyr"),lib=user_lib,randomize_mirror_order=TRUE,global_tries_max=10,force_reinstall=TRUE,mirror_list=mirror_list_3)
 # persistent_install_packages(c("dplyr"),mode_cran_or_bioc=1,lib=user_lib,randomize_mirror_order=TRUE,global_tries_max=10,force_reinstall=TRUE,mirror_list=mirror_list_3)
-persistent_install_packages(c("AnnotationDbi"),mode_cran_or_bioc=2,lib=user_lib,randomize_mirror_order=FALSE,global_tries_max=10,force_reinstall=TRUE,mirror_list=1:3)
+persistent_install_packages(c("AnnotationDbi"),mode_cran_or_bioc=2,lib=user_lib,randomize_mirror_order=FALSE,global_tries_max=3,force_reinstall=TRUE,mirror_list=1:3)
 
 # BiocManager::install(c(
   # "AnnotationDbi",
