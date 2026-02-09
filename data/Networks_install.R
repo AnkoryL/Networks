@@ -6,14 +6,19 @@ Sys.setenv(LANG="en")
 user_home <- file.path(Sys.getenv("HOME"))
 user_lib <- file.path(Sys.getenv("HOME"), "R", "libs")
 here<-try(file.create(paste0(user_home,"/","test_test")))
-if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
-# if (!require("BiocManager", quietly = TRUE))
-    # install.packages("BiocManager")
-# BiocManager::install(version = "3.22",lib=user_lib,ask=FALSE)
-
 
 mirror_list_3<-c("https://cloud.r-project.org",
 "https://cran.uni-muenster.de/")
+
+
+options(repos = c(CRAN = mirror_list_3[1]))
+if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
+# if (!require("BiocManager", quietly = TRUE))
+try({install.packages("BiocManager",lib=user_lib)
+BiocManager::install(version = "3.22",lib=user_lib,ask=FALSE)
+})
+
+
 
 persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,global_tries_max=2,force_reinstall=FALSE,mirror_list_cran=NA,mirror_list_bioc=NA,mode_cran_or_bioc=c("CRAN"),lib_path=file.path(Sys.getenv("HOME"), "R", "libs")) {
 	#The idea of this fucntion is to be as hands off and persistent as reasonable in installing the package in the enviornment of not-so-stable internet connection.
