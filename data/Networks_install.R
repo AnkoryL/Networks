@@ -6,6 +6,10 @@ user_lib <- file.path(Sys.getenv("HOME"), "R", "libs")
 here<-try(file.create(paste0(user_home,"/","test_test")))
 if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
 
+
+# install.packages("BiocManager",lib=user_lib,repos="https://cloud.r-project.org")
+# BiocManager::install(version = "3.22",lib=user_lib)
+
 mirror_list_3<-c("https://cloud.r-project.org",
 "https://cran.uni-muenster.de/")
 tries<-15
@@ -104,12 +108,10 @@ mirror_list_pos<-(iteration %% length(iteration))+1
 current_mirror<-mirror_list[mirror_list_pos]
 return(current_mirror)
 }
-
 mirror_list_cran=sample(full_cran_mirror_list,size=length(full_cran_mirror_list))
 mirror_list_cran<-c("https://cloud.r-project.org",mirror_list_cran)
-
 for (i in 1:tries) {
-if (require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {stop()}
+if (require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {break}
 tryCatch({
 if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 	current_mirror<-mirror_selector(i,mirror_list_cran)
@@ -177,7 +179,7 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 					current_mirror<-mirror_selector(global_tries,mirror_list_cran)
 					
 				} else if ((mode_cran_or_bioc==tolower("Bioconductor")) ){
-					current_mirror<-mirror_selector(global_tries,mirror_list_cran)
+					current_mirror<-mirror_selector(global_tries,mirror_list_bioc)
 				} else {
 				stop(paste0("Error mode ", mode_cran_or_bioc))
 				}
@@ -193,7 +195,6 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 					# print("test")
 						message<-paste0("Runnin BIOCMANAGER INSTALL to install ", pkg_i, " in mode ",mode_cran_or_bioc, " from mirror ", current_mirror)
 						print(message)
-						options(repos=NULL)
 						chooseBioCmirror(ind=as.character(current_mirror))
 						BiocManager::install(pkgs=pkg_i,dependencies=TRUE,lib=lib_path,force = FALSE)
 						message<-paste0("BIOCmanager finished sucesfully")
