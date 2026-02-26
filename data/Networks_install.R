@@ -130,13 +130,7 @@ if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 					message("Original error message:")
 					message(conditionMessage(cond))
 				}, warning=function(cond) {
-<<<<<<< Updated upstream
-					message(paste0("Install packages caused a warning while installing  ", "BiocManager"))
-					message("Original warning message:")
-					message(conditionMessage(cond))
-					invokeRestart("muffleWarning")
 
-=======
 					if (!is_start_matching(bioconductor_prefix,conditionMessage(cond))) {
 						message(paste0("Install packages caused a warning while installing  ", "BiocManager"))
 						message("Original warning message:")
@@ -144,7 +138,6 @@ if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 					}
 					invokeRestart("muffleWarning")
 					
->>>>>>> Stashed changes
 				}, finally={
 						is_pkg_i_installed_already<-suppressMessages(require("BiocManager",character.only=TRUE,lib=user_lib))
 						successfull_install<-is_pkg_i_installed_already
