@@ -9,8 +9,12 @@ if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
 
 # install.packages("BiocManager",lib=user_lib,repos="https://cloud.r-project.org")
 # BiocManager::install(version = "3.22",lib=user_lib)
-bioconductor_prefix<-"cannot open URL \\'https://bioconductor.org/"
-test<-"cannot open URL 'https://bioconductor.org/packages/3.22/books/bin/windows/contrib/4.5/PACKAGES.rds': HTTP status was '404 Not Found'"
+is_start_matching<-function(start,string) {
+return(start==substr(test,1,nchar(start))
+)
+}
+bioconductor_prefix<-"cannot open URL 'https://bioconductor.org/"
+
 mirror_list_3<-c("https://cloud.r-project.org",
 "https://cran.uni-muenster.de/")
 tries<-15
@@ -126,11 +130,21 @@ if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 					message("Original error message:")
 					message(conditionMessage(cond))
 				}, warning=function(cond) {
+<<<<<<< Updated upstream
 					message(paste0("Install packages caused a warning while installing  ", "BiocManager"))
 					message("Original warning message:")
 					message(conditionMessage(cond))
 					invokeRestart("muffleWarning")
 
+=======
+					if (!is_start_matching(bioconductor_prefix,conditionMessage(cond))) {
+						message(paste0("Install packages caused a warning while installing  ", "BiocManager"))
+						message("Original warning message:")
+						message(conditionMessage(cond))
+					}
+					invokeRestart("muffleWarning")
+					
+>>>>>>> Stashed changes
 				}, finally={
 						is_pkg_i_installed_already<-suppressMessages(require("BiocManager",character.only=TRUE,lib=user_lib))
 						successfull_install<-is_pkg_i_installed_already
@@ -213,10 +227,11 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 					message("Original error message:")
 					message(conditionMessage(cond))
 				}, warning=function(cond) {
-					if ()
-					message(paste0("Install packages caused a warning while installing  ", pkg_i, " using mirror ",current_mirror))
-					message("Original warning message:")
-					message(conditionMessage(cond))
+					if (!is_start_matching(bioconductor_prefix,conditionMessage(cond))) {
+						message(paste0("Install packages caused a warning while installing  ", pkg_i, " using mirror ",current_mirror))
+						message("Original warning message:")
+						message(conditionMessage(cond))
+					}
 					invokeRestart("muffleWarning")
 				}, finally={
 						is_pkg_i_installed_already<-suppressMessages(require(pkg_i,character.only=TRUE,lib=lib_path))
