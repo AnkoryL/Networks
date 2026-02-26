@@ -10,7 +10,7 @@ if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
 # install.packages("BiocManager",lib=user_lib,repos="https://cloud.r-project.org")
 # BiocManager::install(version = "3.22",lib=user_lib)
 is_start_matching<-function(start,string) {
-return(start==substr(test,1,nchar(start))
+return(start==substr(string,1,nchar(start))
 )
 }
 bioconductor_prefix<-"cannot open URL 'https://bioconductor.org/"
@@ -123,7 +123,7 @@ if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 	install.packages("BiocManager",lib=user_lib,repos=current_mirror)
 	# options(repos=NULL)
 	chooseBioCmirror(ind=as.character(1))
-	BiocManager::install(version = "3.22",lib=user_lib,site_repository=repositories()[1])
+	BiocManager::install(version = "3.22",lib=user_lib,site_repository=BiocManager::repositories()[1])
 }
 }, error=function(cond){
 					message(paste0("Error while trying to install package ", "BiocManager"))
@@ -206,7 +206,7 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 						message<-paste0("Runnin BIOCmanager INSTALL to install ", pkg_i, " in mode ",mode_cran_or_bioc, " from mirror ", current_mirror)
 						print(message)
 						chooseBioCmirror(ind=as.character(current_mirror))
-						BiocManager::install(pkgs=pkg_i,dependencies=TRUE,lib=lib_path,force = FALSE,site_repository=repositories()[1])
+						BiocManager::install(pkgs=pkg_i,dependencies=TRUE,lib=lib_path,force = FALSE,site_repository=BiocManager::repositories()[1])
 						message<-paste0("BIOCmanager finished sucesfully")
 						print(message)
 					}
