@@ -113,7 +113,7 @@ mirror_list_cran=sample(full_cran_mirror_list,size=length(full_cran_mirror_list)
 mirror_list_cran<-c("https://cloud.r-project.org",mirror_list_cran)
 for (i in 1:tries) {
 if (require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {break}
-tryCatch({
+withCallingHandlers({
 if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 	current_mirror<-mirror_selector(i,mirror_list_cran)
 	install.packages("BiocManager",lib=user_lib,repos=current_mirror)
@@ -129,6 +129,8 @@ if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 					message(paste0("Install packages caused a warning while installing  ", "BiocManager"))
 					message("Original warning message:")
 					message(conditionMessage(cond))
+					invokeRestart("muffleWarning")
+
 				}, finally={
 						is_pkg_i_installed_already<-suppressMessages(require("BiocManager",character.only=TRUE,lib=user_lib))
 						successfull_install<-is_pkg_i_installed_already
@@ -184,7 +186,7 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 				} else {
 				stop(paste0("Error mode ", mode_cran_or_bioc))
 				}
-				tryCatch({
+				withCallingHandlers({
 				
 				if (mode_cran_or_bioc==tolower("CRAN")) {
 						message<-paste0("Runnin install packages to install ", pkg_i, " in mode ",mode_cran_or_bioc, " from mirror ", current_mirror)
