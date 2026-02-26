@@ -111,13 +111,14 @@ mirror_list_cran=sample(full_cran_mirror_list,size=length(full_cran_mirror_list)
 mirror_list_cran<-c("https://cloud.r-project.org",mirror_list_cran)
 for (i in 1:tries) {
 if (require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {break}
-tryCatch({
+withCallingHandlers({
 if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 	current_mirror<-mirror_selector(i,mirror_list_cran)
 	install.packages("BiocManager",lib=user_lib,repos=current_mirror)
-	options(repos=NULL)
 	chooseBioCmirror(ind=as.character(1))
 	BiocManager::install(version = "3.22",lib=user_lib)
+	BiocManager::install("org.Hs.eg.db",lib=user_lib,site_repository=BiocManager::repositories()[1])
+
 }
 }, error=function(cond){
 					message(paste0("Error while trying to install package ", "BiocManager"))
@@ -127,6 +128,7 @@ if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 					message(paste0("Install packages caused a warning while installing  ", "BiocManager"))
 					message("Original warning message:")
 					message(conditionMessage(cond))
+					invokeRestart("muffleWarning")
 				}, finally={
 						is_pkg_i_installed_already<-suppressMessages(require("BiocManager",character.only=TRUE,lib=user_lib))
 						successfull_install<-is_pkg_i_installed_already
