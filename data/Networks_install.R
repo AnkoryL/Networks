@@ -120,6 +120,8 @@ if (require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {br
 withCallingHandlers({
 if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 	current_mirror<-mirror_selector(i,mirror_list_cran)
+	install.packages("installr",lib=user_lib,repos=current_mirror)
+	try(updateR())
 	install.packages("BiocManager",lib=user_lib,repos=current_mirror)
 	# options(repos=NULL)
 	chooseBioCmirror(ind=as.character(1))
