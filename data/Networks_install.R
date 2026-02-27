@@ -112,16 +112,16 @@ install.packages("installr",lib=user_lib,repos=current_mirror)
 }
 installr::updateR(fast=TRUE)
 				}, error=function(cond){
-					message(paste0("Error while trying to install package ", "updateR"))
+					message(paste0("Error while trying to install package ", "installr"))
 					message("Original error message:")
 					message(conditionMessage(cond))
 				}, warning=function(cond) {
-					message(paste0("Install packages caused a warning while installing  ", "updateR"))
+					message(paste0("Install packages caused a warning while installing  ", "installr"))
 					message("Original warning message:")
 					message(conditionMessage(cond))
 					invokeRestart("muffleWarning")			
 				}, finally={
-						is_pkg_i_installed_already<-suppressMessages(require("updateR",character.only=TRUE,lib=user_lib))
+						is_pkg_i_installed_already<-suppressMessages(require("installr",character.only=TRUE,lib=user_lib))
 						successfull_install<-is_pkg_i_installed_already
 						if (successfull_install) {outcome<-"successfully"} else {outcome<-"unsuccessfully"}
 						message(paste0("Package ", "updateR", " was installed ", outcome," at try ",i))
