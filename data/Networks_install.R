@@ -293,21 +293,6 @@ persistent_install_packages(c("AnnotationDbi",
   "org.Dr.eg.db"
 ),mode_cran_or_bioc=2,lib_path=user_lib,randomize_mirror_order=FALSE,global_tries_max=tries,force_reinstall=FALSE,mirror_list_bioc=1:16)
 
-# BiocManager::install(c(
-  # "AnnotationDbi",
-  # "org.Hs.eg.db",
-  # "org.Mm.eg.db",
-  # "org.Mmu.eg.db",
-  # "org.Dr.eg.db"
-# ), lib = user_lib, ask = FALSE, force = TRUE)
-
-zip_url <- "https://github.com/AnkoryL/Networks/archive/refs/heads/main.zip"
-zip_dest <- file.path(user_home, "Networks-main.zip")
-download.file(zip_url, zip_dest, mode = "wb")
-unzip(zip_dest, exdir = user_home)
-pkg_dir <- file.path(user_home, "Networks-main")
-remotes::install_local(pkg_dir, lib = user_lib, force = TRUE, dependencies = TRUE)
-
 remotes::install_github("AnkoryL/Networks",
 			ref = "main",
 			lib = user_lib,
