@@ -103,10 +103,11 @@ return(current_mirror)
 }
 
 for (i in 1:tries) {
-if (require("installr", quietly = TRUE,character.only=TRUE,lib=lib_path)) {break}
 withCallingHandlers({
 current_mirror<-mirror_selector(i,full_cran_mirror_list)
+if (require("installr", quietly = TRUE,character.only=TRUE,lib=user_lib)) {break} else {
 install.packages("installr",lib=user_lib,repos=current_mirror)
+}
 installr::updateR(fast=TRUE)
 				}, error=function(cond){
 					message(paste0("Error while trying to install package ", "updateR"))
