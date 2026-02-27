@@ -5,20 +5,8 @@ user_home <- file.path(Sys.getenv("HOME"))
 user_lib <- file.path(Sys.getenv("HOME"), "R", "libs")
 here<-try(file.create(paste0(user_home,"/","test_test")))
 if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
-
-
-# install.packages("BiocManager",lib=user_lib,repos="https://cloud.r-project.org")
-# BiocManager::install(version = "3.22",lib=user_lib)
-is_start_matching<-function(start,string) {
-return(start==substr(string,1,nchar(start))
-)
-}
-bioconductor_prefix<-"cannot open URL 'https://bioconductor.org/"
-
-mirror_list_3<-c("https://cloud.r-project.org",
-"https://cran.uni-muenster.de/")
 tries<-15
-# options(repos = c(CRAN = mirror_list_3[1]))
+latest_bioconductor_version<-"3.22"
 full_cran_mirror_list<-c("https://cloud.r-project.org/",
 "http://mirror.fcaglp.unlp.edu.ar/CRAN/",
 "https://cran.csiro.au/",
@@ -109,10 +97,47 @@ full_cran_mirror_list<-c("https://cloud.r-project.org/",
 "https://mirrors.cicku.me/cran/")
 
 mirror_selector<-function(iteration,mirror_list) {
-mirror_list_pos<-(iteration %% length(iteration))+1
+mirror_list_pos<-(iteration %% length(mirror_list))+1
 current_mirror<-mirror_list[mirror_list_pos]
 return(current_mirror)
 }
+
+for (i in 1:tries) {
+if (require("installr", quietly = TRUE,character.only=TRUE,lib=lib_path)) {break}
+withCallingHandlers({
+current_mirror<-mirror_selector(i,full_cran_mirror_list)
+install.packages("installr",lib=user_lib,repos=current_mirror)
+installr::updateR(fast=TRUE)
+				}, error=function(cond){
+					message(paste0("Error while trying to install package ", "updateR"))
+					message("Original error message:")
+					message(conditionMessage(cond))
+				}, warning=function(cond) {
+					message(paste0("Install packages caused a warning while installing  ", "updateR"))
+					message("Original warning message:")
+					message(conditionMessage(cond))
+					invokeRestart("muffleWarning")			
+				}, finally={
+						is_pkg_i_installed_already<-suppressMessages(require("updateR",character.only=TRUE,lib=user_lib))
+						successfull_install<-is_pkg_i_installed_already
+						if (successfull_install) {outcome<-"successfully"} else {outcome<-"unsuccessfully"}
+						message(paste0("Package ", "updateR", " was installed ", outcome," at try ",i))
+				})
+}
+
+# install.packages("BiocManager",lib=user_lib,repos="https://cloud.r-project.org")
+# BiocManager::install(version = "3.22",lib=user_lib)
+is_start_matching<-function(start,string) {
+return(start==substr(string,1,nchar(start))
+)
+}
+bioconductor_prefix<-"cannot open URL 'https://bioconductor.org/"
+
+mirror_list_3<-c("https://cloud.r-project.org",
+"https://cran.uni-muenster.de/")
+# options(repos = c(CRAN = mirror_list_3[1]))
+
+
 mirror_list_cran=sample(full_cran_mirror_list,size=length(full_cran_mirror_list))
 mirror_list_cran<-c("https://cloud.r-project.org",mirror_list_cran)
 for (i in 1:tries) {
@@ -120,12 +145,10 @@ if (require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {br
 withCallingHandlers({
 if (!require("BiocManager", quietly = TRUE,character.only=TRUE,lib=lib_path)) {
 	current_mirror<-mirror_selector(i,mirror_list_cran)
-	install.packages("installr",lib=user_lib,repos=current_mirror)
-	try(updateR())
 	install.packages("BiocManager",lib=user_lib,repos=current_mirror)
 	# options(repos=NULL)
 	chooseBioCmirror(ind=as.character(1))
-	BiocManager::install(version = "3.22",lib=user_lib,site_repository=BiocManager::repositories()[1])
+	BiocManager::install(version = latest_bioconductor_version,lib=user_lib,site_repository=BiocManager::repositories()[1])
 }
 }, error=function(cond){
 					message(paste0("Error while trying to install package ", "BiocManager"))
