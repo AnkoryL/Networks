@@ -293,14 +293,32 @@ persistent_install_packages(c("AnnotationDbi",
   "org.Dr.eg.db"
 ),mode_cran_or_bioc=2,lib_path=user_lib,randomize_mirror_order=FALSE,global_tries_max=tries,force_reinstall=FALSE,mirror_list_bioc=1:16)
 
-remotes::install_github("AnkoryL/Networks",
-			ref = "main",
-			lib = user_lib,
-			force = TRUE,
-			dependencies = c("Imports", "LinkingTo"),
-			build_vignettes = FALSE,
-			upgrade = "never")
+
+for (i in 1:tries) {
+		withCallingHandlers({
+			remotes::install_github("AnkoryL/Networks",
+				ref = "main",
+				lib = user_lib,
+				force = TRUE,
+				dependencies = c("Imports", "LinkingTo"),
+				build_vignettes = FALSE,
+				upgrade = "never")
 			
-is_installed<-suppressMessages(require("Networks",character.only=TRUE,lib=user_lib))
-if (is_installed) {outcome<-"successfully"} else {outcome<-"unsuccessfully"}
-paste0("Package ","Networks", " was installed ", outcome)
+		}, error=function(cond){
+				message(paste0("Error while trying to install package ", "Networks"))
+				message("Original error message:")
+					message(conditionMessage(cond))
+		}, warning=function(cond) {
+				message(paste0("Install packages caused a warning while installing  ", "Networks"))
+				message("Original warning message:")
+				message(conditionMessage(cond))
+				invokeRestart("muffleWarning")			
+		}, finally={
+					is_pkg_i_installed_already<-suppressMessages(require("Networks",character.only=TRUE,lib=user_lib))
+					successfull_install<-is_pkg_i_installed_already
+					if (successfull_install) {outcome<-"successfully"} else {outcome<-"unsuccessfully"}
+					message(paste0("Package ", "Networks", " was installed ", outcome," at try ",i))
+		})
+}
+
+
