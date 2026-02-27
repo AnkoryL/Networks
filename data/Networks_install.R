@@ -6,7 +6,7 @@ Sys.setenv(LANG="en")
 user_home <- file.path(Sys.getenv("HOME"))
 user_lib <- file.path(Sys.getenv("HOME"), "R", "libs")
 here<-try(file.create(paste0(user_home,"/","test_test")))
-if (!file.exists(paste0(user_home,"/","test_test"))) {print("error 1")}
+if (!file.exists(paste0(user_home,"/","test_test"))) {print("Couldn't create test file in home")}
 tries<-15
 latest_bioconductor_version<-"3.22"
 full_cran_mirror_list<-c("https://cloud.r-project.org/",
@@ -124,7 +124,7 @@ installr::updateR(fast=TRUE)
 						is_pkg_i_installed_already<-suppressMessages(require("installr",character.only=TRUE,lib=user_lib))
 						successfull_install<-is_pkg_i_installed_already
 						if (successfull_install) {outcome<-"successfully"} else {outcome<-"unsuccessfully"}
-						message(paste0("Package ", "updateR", " was installed ", outcome," at try ",i))
+						message(paste0("Package ", "installr", " was installed ", outcome," at try ",i))
 				})
 }
 
