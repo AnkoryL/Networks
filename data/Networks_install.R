@@ -1,5 +1,7 @@
 #Rscript "C:/Users/Ankory/Desktop/Networks_install.R"
 #Rscript "C:\ivan_work\Networks\data\Networks_install.R"
+# Rscript "G:\work\my_r_packages\Networks\data\Networks_install.R"
+
 Sys.setenv(LANG="en")
 user_home <- file.path(Sys.getenv("HOME"))
 user_lib <- file.path(Sys.getenv("HOME"), "R", "libs")
@@ -210,6 +212,7 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 			mirror_list_bioc<-c("1",mirror_list_bioc)
 		}
 			while ((global_tries<global_tries_max) & !(successfull_install)) {
+				successfull_install<-require(pkg_i,character.only=TRUE,lib=lib_path, quietly = TRUE)
 				global_tries<-global_tries+1
 				if (mode_cran_or_bioc==tolower("CRAN")) {
 					current_mirror<-mirror_selector(global_tries,mirror_list_cran)
@@ -253,10 +256,10 @@ persistent_install_packages<-function(pkgs,...,randomize_mirror_order=FALSE,glob
 					}
 					invokeRestart("muffleWarning")
 				}, finally={
-						is_pkg_i_installed_already<-suppressMessages(require(pkg_i,character.only=TRUE,lib=lib_path))
-						successfull_install<-is_pkg_i_installed_already
+						successfull_install<-suppressMessages(require(pkg_i,character.only=TRUE,lib=lib_path))
 						if (successfull_install) {outcome<-"successfully"} else {outcome<-"unsuccessfully"}
 						message(paste0("Package ",pkg_i, " was installed ", outcome," at try ",global_tries, " using mirror ",current_mirror))
+						
 				})
 			
 			}
