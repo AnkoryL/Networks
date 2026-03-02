@@ -99,7 +99,8 @@ full_cran_mirror_list<-c("https://cloud.r-project.org/",
 "https://mirrors.cicku.me/cran/")
 
 mirror_selector<-function(iteration,mirror_list) {
-mirror_list_pos<-(iteration %% length(mirror_list))+1
+mirror_list_pos<-(iteration %% length(mirror_list))
+if (mirror_list_pos==0) {mirror_list_pos<-length(mirror_list)}
 current_mirror<-mirror_list[mirror_list_pos]
 return(current_mirror)
 }
