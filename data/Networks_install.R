@@ -294,11 +294,11 @@ persistent_install_packages(c("AnnotationDbi",
   "org.Dr.eg.db"
 ),mode_cran_or_bioc=2,lib_path=user_lib,randomize_mirror_order=FALSE,global_tries_max=tries,force_reinstall=FALSE,mirror_list_bioc=1:16)
 
-
+branch<-c("main", "experimental")
 for (i in 1:tries) {
 		withCallingHandlers({
 			remotes::install_github("AnkoryL/Networks",
-				ref = "main",
+				ref = branch[2],
 				lib = user_lib,
 				force = TRUE,
 				dependencies = c("Imports", "LinkingTo"),
