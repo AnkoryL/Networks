@@ -1,7 +1,7 @@
 #Rscript "C:/Users/Ankory/Desktop/Networks_install.R"
 #Rscript "C:\ivan_work\Networks\data\Networks_install.R"
 # Rscript "G:\work\my_r_packages\Networks\data\Networks_install.R"
-
+# Rscript "G:\work\my_r_packages\experimental_networks\Networks\data\Networks_install.R"
 Sys.setenv(LANG="en")
 user_home <- file.path(Sys.getenv("HOME"))
 user_lib <- file.path(Sys.getenv("HOME"), "R", "libs")
@@ -286,7 +286,7 @@ if (!dir.exists(user_lib)) dir.create(user_lib, recursive = TRUE, showWarnings =
 
 # install.packages("BiocManager",lib=user_lib)
 # persistent_install_packages(c("BiocManager","remote","dplyr"),lib=user_lib,randomize_mirror_order=TRUE,global_tries_max=10,force_reinstall=TRUE,mirror_list=mirror_list_3)
-persistent_install_packages(c("remote","dplyr"),mode_cran_or_bioc=1,lib=user_lib,randomize_mirror_order=TRUE,global_tries_max=tries,force_reinstall=FALSE,mirror_list_cran=full_cran_mirror_list)
+persistent_install_packages(c("remotes","dplyr"),mode_cran_or_bioc=1,lib=user_lib,randomize_mirror_order=TRUE,global_tries_max=tries,force_reinstall=FALSE,mirror_list_cran=full_cran_mirror_list)
 persistent_install_packages(c("AnnotationDbi",
   "org.Hs.eg.db",
   "org.Mm.eg.db",
