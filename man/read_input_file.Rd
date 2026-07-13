@@ -2,16 +2,18 @@
 % Please edit documentation in R/read_gene_list.R
 \name{read_input_file}
 \alias{read_input_file}
-\title{Read a gene list file in various formats}
+\title{Read a gene list file in various formats, auto-detecting extension}
 \usage{
-read_input_file(path)
+read_input_file(path, folder = ".")
 }
 \arguments{
-\item{path}{Path to a gene list file (csv, txt, tsv, xls, xlsx).}
+\item{path}{Path to the gene list file (can be name only; function will detect extension).}
+
+\item{folder}{Folder where the file is located. Default: current working directory.}
 }
 \value{
 A data frame with gene identifiers.
 }
 \description{
-Read a gene list file in various formats
+Read a gene list file in various formats, auto-detecting extension
 }
