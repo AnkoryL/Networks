@@ -8,7 +8,8 @@ convert_genes_to_orthologs(
   genes_list_path,
   from_species,
   to_species,
-  output_folder_path = "./results_orthologs"
+  output_folder_path = file.path(Sys.getenv("USERPROFILE"), "Desktop",
+    "Networks_results")
 )
 }
 \arguments{

@@ -43,15 +43,21 @@ build_go_network <- function(
     directed = FALSE
   )
 
+
   all_vertices <- igraph::V(go_gene_graph)$name
   gene_list <- gene_go_terms$Ensembl_gene_id
   valid_genes <- gene_list[gene_list %in% all_vertices]
+
+
+
   if (length(valid_genes) < 2) stop("Not enough valid genes to build network.")
+
 
   gene_matrix <- matrix(0, nrow = length(valid_genes), ncol = length(valid_genes),
                         dimnames = list(valid_genes, valid_genes))
 
   edge_info <- list()
+
 
   for (i in 1:(length(valid_genes)-1)) {
     for (j in (i+1):length(valid_genes)) {
@@ -116,6 +122,7 @@ build_go_network <- function(
   grDevices::dev.off()
 
   if (length(igraph::E(gene_gene_graph)) == 0) stop("No gene interactions found above threshold.")
+
 
   edge_df <- data.frame(
     gene1 = igraph::ends(gene_gene_graph, es = igraph::E(gene_gene_graph))[,1],
