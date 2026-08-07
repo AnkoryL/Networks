@@ -1,4 +1,16 @@
-.libPaths(file.path(getwd(), "library"))
+# .libPaths(file.path(getwd(), "library"))
+app_dir <- normalizePath(getwd())
+
+portable_lib <- file.path(
+  dirname(app_dir),
+  "library"
+)
+
+.libPaths(c(portable_lib, .libPaths()))
+# app_dir <- normalizePath(getwd())
+# .libPaths(
+#   c(file.path(app_dir, "library"),
+#     file.path(app_dir, "portable-r-4.6.1-win-x64", "library")))
 
 suppressPackageStartupMessages({
     library(shiny)
@@ -207,7 +219,7 @@ server <- function(input, output, session) {
 
     showNotification( "GO analysis started")
 	log_message("GO analysis started")
- 
+
     rv$go_dir <- file.path(tempdir(), paste0("go_", as.integer(Sys.time())))
     dir.create(rv$go_dir, recursive = TRUE)
 
@@ -298,7 +310,7 @@ server <- function(input, output, session) {
 
 		showNotification("KEGG common analysis started")
 		log_message("KEGG common analysis started")
-		
+
 	    rv$kegg_common_dir <- file.path(tempdir(), paste0("kegg_common_", as.integer(Sys.time())))
 	    dir.create(rv$kegg_common_dir, recursive = TRUE)
 
@@ -324,7 +336,7 @@ server <- function(input, output, session) {
 	      rv$kegg_common_trigger <- rv$kegg_common_trigger + 1
 	      showNotification("Analysis completed successfully!", type = "default")
 		  log_message("kegg analysis completed successfully")
-		  
+
 	    }, error = function(e) {
 	      showNotification(paste("Error in pipeline:", e$message), type = "error", duration = NULL)
 		  log_message(paste("kegg common analysis failed:", conditionMessage(e)))
@@ -387,7 +399,7 @@ server <- function(input, output, session) {
 
 		showNotification("KEGG relation analysis started")
 		log_message("KEGG relation analysis started")
-		
+
 	    rv$kegg_relation_dir <- file.path(tempdir(), paste0("kegg_relation_", as.integer(Sys.time())))
 	    dir.create(rv$kegg_relation_dir, recursive = TRUE)
 
@@ -408,11 +420,11 @@ server <- function(input, output, session) {
 			", ortholog = ", input$kegg_relation_ortholog
 			)
 		)
-		
+
 	      rv$kegg_relation_trigger <- rv$kegg_relation_trigger + 1
 	      showNotification("Analysis completed successfully!", type = "default")
 		  log_message("kegg relation analysis completed successfully")
-			
+
 	    }, error = function(e) {
 	      showNotification(paste("Error in pipeline:", e$message), type = "error", duration = NULL)
 		  log_message(paste("kegg relation analysis failed:", conditionMessage(e)))
@@ -491,15 +503,15 @@ server <- function(input, output, session) {
 		log_message(
 		paste0(
 			"ortholog conversion parameters:",
-			" species from = ", input$from_species,			
+			" species from = ", input$from_species,
 			", species to = ", input$to_species
 			)
 		)
-		
+
 	      rv$ortholog_trigger <- rv$ortholog_trigger + 1
 	      showNotification("Conversion completed successfully!", type = "default")
 		  log_message("Conversion completed successfully")
-		  
+
 	    }, error = function(e) {
 	      showNotification(paste("Error in pipeline:", e$message), type = "error", duration = NULL)
 		  log_message(paste("Ortholog conversion failed:", conditionMessage(e)))
@@ -548,7 +560,7 @@ session$onSessionEnded(function() {
     unlink(isolate(rv$kegg_common_dir), recursive = TRUE, force = TRUE)
     unlink(isolate(rv$kegg_relation_dir), recursive = TRUE, force = TRUE)
     unlink(isolate(rv$ortholog_dir), recursive = TRUE, force = TRUE)
- 
+
 	log_message("Application session ended")
 
     stopApp()
@@ -558,7 +570,7 @@ session$onSessionEnded(function() {
 }
 
 
-	
+
 runApp(
   shinyApp(ui, server),
   launch.browser = TRUE
