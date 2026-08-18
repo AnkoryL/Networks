@@ -20,7 +20,10 @@ Imports:
     org.Mmu.eg.db,
     org.Dr.eg.db,
     tools,
-    utils
+    utils,
+    shinycssloaders,
+    shiny,
+    DT
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
