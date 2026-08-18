@@ -33,14 +33,15 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
 
     message("      Detected both Ensembl_gene_id and Gene_symbol — using input as is.")
 
-    df <- genes_list[, c("Ensembl_gene_id", "Gene_symbol")]
-
-    inferred <- infer_species(df$Ensembl_gene_id[1])
+    data_frame_genes <- genes_list[, c("Ensembl_gene_id", "Gene_symbol")]
+	data_frame_genes <- apply(data_frame_genes,2,trimws)
+	
+    inferred <- infer_species(data_frame_genes$Ensembl_gene_id[1])
     if (is.na(inferred)) stop(error_messages$species_not_automatically_inferred)
     if (species_prefix != inferred)
       stop(sprintf(error_messages$species_diffes, species_prefix, inferred))
 
-    return(df)
+    return(data_frame_genes)
   }
 
   if ("Ensembl_gene_id" %in% colnames(genes_list)) {
@@ -54,26 +55,26 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
     if (species_prefix != inferred)
       stop(sprintf(error_messages$species_diffes, species_prefix, inferred))
 
-    df <- data.frame(Ensembl_gene_id = vec, stringsAsFactors = FALSE)
+    data_frame_genes <- data.frame(Ensembl_gene_id = vec, stringsAsFactors = FALSE)
 
-    df <- dplyr::left_join(
-      df,
+    data_frame_genes <- dplyr::left_join(
+      data_frame_genes,
       annotations[, c("ENSEMBL", "SYMBOL")],
       by = c("Ensembl_gene_id" = "ENSEMBL")
     )
 
-    names(df)[names(df) == "SYMBOL"] <- "Gene_symbol"
+    names(data_frame_genes)[names(data_frame_genes) == "SYMBOL"] <- "Gene_symbol"
 
     out_gene_list_path <- file.path(output_folder_path, "double_index_gene_list.txt")
     write.table(
-      df,
+      data_frame_genes,
       file = out_gene_list_path,
       sep = "\t",
       quote = FALSE,
       row.names = FALSE
     )
 
-    return(df)
+    return(data_frame_genes)
   }
 
   if ("Gene_symbol" %in% colnames(genes_list)) {
@@ -112,13 +113,13 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
     if (species_prefix != inferred)
       stop(sprintf(error_messages$species_diffes, species_prefix, inferred))
 
-    df <- annotation_full %>%
+    data_frame_genes <- annotation_full %>%
       dplyr::rename(Ensembl_gene_id = ENSEMBL) %>%
       dplyr::select(Ensembl_gene_id, Gene_symbol)
 
     out_gene_list_path <- file.path(output_folder_path, "double_index_gene_list.txt")
     write.table(
-      df,
+      data_frame_genes,
       file = out_gene_list_path,
       sep = "\t",
       quote = FALSE,
@@ -127,7 +128,7 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
 
     message("      Gene_symbol → Ensembl completed.")
 
-    return(df)
+    return(data_frame_genes)
   }
 
   stop(error_messages$unsupported_genes_input)
