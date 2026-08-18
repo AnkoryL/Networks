@@ -49,7 +49,7 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
     message("      Detected Ensembl_gene_id column — will enrich with Gene_symbol.")
 
     vec <- unlist(genes_list$Ensembl_gene_id)
-
+	vec <- trimws(vec)
     inferred <- infer_species(vec[1])
     if (is.na(inferred)) stop(error_messages$species_not_automatically_inferred)
     if (species_prefix != inferred)
@@ -81,10 +81,10 @@ prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
 
     message("      No Ensembl IDs found — mapping Gene_symbol → Ensembl.")
 
-    symbols <- genes_list$Gene_symbol
-
+    gene_symbols <- unlist(genes_list$Gene_symbol)
+	gene_symbols <- trimws(gene_symbols)
     annotation_full <- dplyr::left_join(
-      data.frame(Gene_symbol = symbols),
+      data.frame(Gene_symbol = gene_symbols),
       annotations[, c("ENSEMBL", "SYMBOL")],
       by = c("Gene_symbol" = "SYMBOL")
     )
