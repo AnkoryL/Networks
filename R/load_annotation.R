@@ -7,6 +7,9 @@
 #'
 #' @return Annotation data.frame
 #' @keywords internal
+#' @export
+
+
 load_annotation <- function(source_type, species_prefix, connection_type = NULL, go_type = NULL) {
   key <- switch(
     source_type,
