@@ -11,17 +11,6 @@
 prepare_genes <- function(genes_list_path, species_prefix, output_folder_path) {
 
   genes_list <- read_input_file(genes_list_path)
-
-  infer_species <- function(ensembl_id) {
-    dplyr::case_when(
-      grepl("^ENSG",    ensembl_id, ignore.case = TRUE) ~ "human",
-      grepl("^ENSMUSG", ensembl_id, ignore.case = TRUE) ~ "mouse",
-      grepl("^ENSMMUG", ensembl_id, ignore.case = TRUE) ~ "macaque",
-      grepl("^ENSDARG", ensembl_id, ignore.case = TRUE) ~ "zebrafish",
-      TRUE ~ NA_character_
-    )
-  }
-
   annotation_db <- switch(
     species_prefix,
     "human"     = org.Hs.eg.db::org.Hs.eg.db,
