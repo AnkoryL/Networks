@@ -19,6 +19,7 @@ export(get_go_file_by_prefix)
 export(get_species_homologs)
 export(infer_species)
 export(load_and_validate_config)
+export(load_annotation)
 export(load_ortholog)
 export(map_genes_to_orthologs)
 export(parse_go_line)
@@ -31,6 +32,8 @@ import(org.Dr.eg.db)
 import(org.Hs.eg.db)
 import(org.Mm.eg.db)
 import(org.Mmu.eg.db)
-importFrom(AnnotationDbi,keys)
-importFrom(AnnotationDbi,select)
+importFrom(AnnotationDbi,
+  keys,
+  select
+)
 importFrom(magrittr,"%>%")
