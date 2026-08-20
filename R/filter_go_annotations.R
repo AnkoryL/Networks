@@ -10,13 +10,13 @@
 filter_go_annotations <- function(annotated_genes, config_evidence_path, level_from, level_to) {
   config_evidence <- read.delim(config_evidence_path, sep = "\t", header = TRUE, stringsAsFactors = FALSE)
   valid_evidence <- config_evidence$Evidence[config_evidence$Boolean == "TRUE"]
-
+	colnames(data)[colnames(data)=="ENSEMBL"]<-"Ensembl_gene_id"
   data <- na.omit(annotated_genes)
 
   data$Level <- strsplit(as.character(data$Level), ",")
   data$Level <- lapply(data$Level, function(x) as.numeric(trimws(x)))
 
-  valid_level <- function(x) any(x >= level_from & x <= level_to)
+  valid_level <- function(x) {any(x >= level_from & x <= level_to)}
   data <- data[sapply(data$Level, valid_level), ]
 
   data$Level <- sapply(data$Level, function(x) paste(x, collapse = ","))
